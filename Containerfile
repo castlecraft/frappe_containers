@@ -113,9 +113,17 @@ RUN chown -R frappe:frappe /var/lib/nginx && \
 
 USER frappe
 WORKDIR /home/frappe/frappe-bench/sites
-VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/frappe-bench/logs" ]
 
-CMD [ "/home/frappe/frappe-bench/env/bin/gunicorn", \
+VOLUME [ \
+  "/home/frappe/frappe-bench/sites", \
+  "/home/frappe/frappe-bench/logs", \
+  "/home/frappe/frappe-bench/sites/assets", \
+  "/home/frappe/frappe-bench/apps", \
+  "/home/frappe/frappe-bench/env" \
+]
+
+CMD [ \
+  "/home/frappe/frappe-bench/env/bin/gunicorn", \
   "--bind=0.0.0.0:8000", \
   "--threads=4", \
   "--workers=2", \
