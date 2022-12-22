@@ -97,18 +97,17 @@ RUN bench build --production --verbose --hard-link
 FROM base as backend
 
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
-COPY resources/gevent_patch.py /opt/patches/
 COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
 
 # Fixes for non-root nginx and logs to stdout
-RUN chown -R frappe:frappe /var/lib/nginx && \
-  chown -R frappe:frappe /var/log/nginx && \
-  chown -R frappe:frappe /etc/nginx/conf.d && \
-  chown -R frappe:frappe /etc/nginx/nginx.conf && \
-  sed -i '/user www-data/d' /etc/nginx/nginx.conf && \
+RUN sed -i '/user www-data/d' /etc/nginx/nginx.conf && \
   ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log && \
   touch /var/run/nginx.pid && \
+  chown -R frappe:frappe /etc/nginx/conf.d && \
+  chown -R frappe:frappe /etc/nginx/nginx.conf && \
+  chown -R frappe:frappe /var/log/nginx && \
+  chown -R frappe:frappe /var/lib/nginx && \
   chown -R frappe:frappe /var/run/nginx.pid
 
 USER frappe

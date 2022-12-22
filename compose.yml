@@ -3,14 +3,13 @@ version: "3"
 services:
   backend:
     image: worker:latest
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     volumes:
       - sites:/home/frappe/frappe-bench/sites
 
   configurator:
     image: worker:latest
+    restart: "no"
     entrypoint:
       - bash
       - -c
@@ -34,9 +33,7 @@ services:
 
   create-site:
     image: worker:latest
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: "no"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
     entrypoint:
@@ -61,7 +58,7 @@ services:
           fi
         done;
         echo "common_site_config.json found";
-        bench new-site frontend --admin-password=admin --db-root-password=admin --install-app payments --install-app erpnext --set-default --no-mariadb-socket;
+        bench new-site localhost --admin-password=admin --db-root-password=admin --install-app payments --install-app erpnext --no-mariadb-socket;
 
   db:
     image: mariadb:10.6
@@ -69,9 +66,7 @@ services:
       test: mysqladmin ping -h localhost --password=admin
       interval: 1s
       retries: 15
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -85,10 +80,8 @@ services:
   frontend:
     image: worker:latest
     command:
-    - nginx-entrypoint.sh
-    deploy:
-      restart_policy:
-        condition: on-failure
+      - nginx-entrypoint.sh
+    restart: always
     environment:
       BACKEND: backend:8000
       FRAPPE_SITE_NAME_HEADER: frontend
@@ -103,9 +96,7 @@ services:
 
   queue-default:
     image: worker:latest
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     command:
       - bench
       - worker
@@ -116,9 +107,7 @@ services:
 
   queue-long:
     image: worker:latest
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     command:
       - bench
       - worker
@@ -129,9 +118,7 @@ services:
 
   queue-short:
     image: worker:latest
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     command:
       - bench
       - worker
@@ -142,33 +129,25 @@ services:
 
   redis-queue:
     image: redis:6.2-alpine
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     volumes:
       - redis-queue-data:/data
 
   redis-cache:
     image: redis:6.2-alpine
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     volumes:
       - redis-cache-data:/data
 
   redis-socketio:
     image: redis:6.2-alpine
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     volumes:
       - redis-socketio-data:/data
 
   scheduler:
     image: worker:latest
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     command:
       - bench
       - schedule
@@ -180,9 +159,7 @@ services:
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     volumes:
       - sites:/home/frappe/frappe-bench/sites
 
