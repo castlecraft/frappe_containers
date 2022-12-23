@@ -18,13 +18,13 @@ git clone https://github.com/resilient-tech/india-compliance -b version-14 --ori
 With `buildah`
 
 ```shell
-buildah build -t worker:latest --target backend -f Containerfile .
+buildah build -t worker:latest -f Containerfile .
 ```
 
 Or with `docker`
 
 ```shell
-docker build -t worker:latest --target backend -f Containerfile .
+docker build -t worker:latest -f Containerfile .
 ```
 
 ## Start containers
@@ -75,3 +75,18 @@ Notes:
 
 - As the processes are controlled by container engine, `supervisor` is not installed in containers. Instead restart the containers to have the same effect.
 - Volumes preserve the changes done to apps, assets, env and sites during bench commands like `bench update`, `bench setup env` or `build build --hard-link`.
+
+## Environment Variables
+
+No script except `nginx-entrypoint.sh` uses environment variables.
+
+Variables used are as follows:
+
+- `BACKEND`: Set to `{host}:{port}`, defaults to `0.0.0.0:8000`
+- `SOCKETIO`: Set to `{host}:{port}`, defaults to `0.0.0.0:9000`
+- `UPSTREAM_REAL_IP_ADDRESS`: Set Nginx config for [ngx_http_realip_module#set_real_ip_from](http://nginx.org/en/docs/http/ngx_http_realip_module.html#set_real_ip_from), defaults to `127.0.0.1`
+- `UPSTREAM_REAL_IP_HEADER`: Set Nginx config for [ngx_http_realip_module#real_ip_header](http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_header), defaults to `X-Forwarded-For`
+- `UPSTREAM_REAL_IP_RECURSIVE`: Set Nginx config for [ngx_http_realip_module#real_ip_recursive](http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_recursive) Set defaults to `off`
+- `FRAPPE_SITE_NAME_HEADER`: Set proxy header `X-Frappe-Site-Name` and serve site named in the header, defaults to `$host`, i.e. find site name from host header.
+
+To bypass `nginx-entrypoint.sh`, mount desired `/etc/nginx/conf.d/frappe.conf` and run `nginx -g 'daemon off;'` as container command.
