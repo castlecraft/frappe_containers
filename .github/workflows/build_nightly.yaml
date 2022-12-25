@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - images/production/**
-      - docker-bake.hcl
       - .github/workflows/build_nightly.yaml
 
   schedule:
