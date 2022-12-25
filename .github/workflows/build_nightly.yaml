@@ -1,0 +1,55 @@
+name: Nightly
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - images/production/**
+      - docker-bake.hcl
+      - .github/workflows/build_nightly.yaml
+
+  schedule:
+    # Every day at 12:00 pm
+    - cron: 0 0 * * *
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install qemu and podman dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static podman
+
+      - name: Get Repo
+        id: get-repo
+        run: echo "::set-output name=REPOSITORY::${GITHUB_REPOSITORY#*/}"
+
+      - name: Build image
+        if: ${{ github.event_name != 'pull_request' }}
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/${{ steps.get-repo.outputs.REPOSITORY }}/erpnext
+          tags: latest
+          archs: amd64, arm64
+          containerfiles: |
+            ./images/production/Containerfile
+          build-args: |
+            FRAPPE_BRANCH=develop
+            ERPNEXT_BRANCH=develop
+
+      - name: Push to ghcr.io
+        if: ${{ github.event_name != 'pull_request' }}
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: latest
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}

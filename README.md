@@ -18,13 +18,13 @@ git clone https://github.com/resilient-tech/india-compliance -b version-14 --ori
 With `buildah`
 
 ```shell
-buildah build -t worker:latest -f Containerfile .
+buildah build -t worker:latest -f images/production/Containerfile .
 ```
 
 Or with `docker`
 
 ```shell
-docker build -t worker:latest -f Containerfile .
+docker build -t worker:latest -f images/production/Containerfile .
 ```
 
 ## Start containers
@@ -58,9 +58,9 @@ podman-compose --project-name bench -f compose/bench.compose.yml up -d
 Enter the backend container:
 
 ```shell
-docker compose -p bench exec -w /home/frappe/frappe-bench backend bash
+docker compose -p bench exec backend bash
 # or
-podman-compose --project-name bench exec -w /home/frappe/frappe-bench backend bash
+podman-compose --project-name bench exec backend bash
 ```
 
 Now you can execute standard bench commands inside container. Example:
@@ -88,5 +88,6 @@ Variables used are as follows:
 - `UPSTREAM_REAL_IP_HEADER`: Set Nginx config for [ngx_http_realip_module#real_ip_header](http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_header), defaults to `X-Forwarded-For`
 - `UPSTREAM_REAL_IP_RECURSIVE`: Set Nginx config for [ngx_http_realip_module#real_ip_recursive](http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_recursive) Set defaults to `off`
 - `FRAPPE_SITE_NAME_HEADER`: Set proxy header `X-Frappe-Site-Name` and serve site named in the header, defaults to `$host`, i.e. find site name from host header.
+- `PROXY_READ_TIMEOUT`: Upstream gunicorn service timeout, defaults to `120`
 
-To bypass `nginx-entrypoint.sh`, mount desired `/etc/nginx/conf.d/frappe.conf` and run `nginx -g 'daemon off;'` as container command.
+To bypass `nginx-entrypoint.sh`, mount desired `/etc/nginx/conf.d/default.conf` and run `nginx -g 'daemon off;'` as container command.

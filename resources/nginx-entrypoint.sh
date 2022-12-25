@@ -26,12 +26,18 @@ if [[ -z "$FRAPPE_SITE_NAME_HEADER" ]]; then
   export FRAPPE_SITE_NAME_HEADER='$host'
 fi
 
+if [[ -z "$PROXY_READ_TIMEOUT" ]]; then
+  echo "PROXY_READ_TIMEOUT defaulting to 120"
+  export PROXY_READ_TIMEOUT=120
+fi
+
 envsubst '${BACKEND}
   ${SOCKETIO}
   ${UPSTREAM_REAL_IP_ADDRESS}
   ${UPSTREAM_REAL_IP_HEADER}
   ${UPSTREAM_REAL_IP_RECURSIVE}
-  ${FRAPPE_SITE_NAME_HEADER}' \
+  ${FRAPPE_SITE_NAME_HEADER}
+  ${PROXY_READ_TIMEOUT}' \
   < /templates/nginx/frappe.conf.template > /etc/nginx/conf.d/frappe.conf
 
 nginx -g 'daemon off;'
