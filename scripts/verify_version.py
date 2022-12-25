@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-import json
-import sys
 import argparse
-import subprocess
+import json
 import re
-import setuptools
-
+import subprocess
+import sys
 from typing import Literal
+
+import setuptools
 
 Repo = Literal["frappe", "erpnext"]
 MajorVersion = Literal["12", "13", "14", "develop"]
@@ -48,23 +48,26 @@ def main(_args: list[str]):
     parser.add_argument(
         "--version", choices=["12", "13", "14", "develop"], required=True
     )
-    parser.add_argument("--display", action='store_true')
+    parser.add_argument("--display", action="store_true")
     args = parser.parse_args(_args)
     repo_version = get_latest_tag(args.repo, args.version)
     versions = {}
-    version_file = f'versions/version-{args.version}.json'
-    with open(version_file, 'r') as f:
-      versions = json.load(f)
+    version_file = f"versions/version-{args.version}.json"
+    with open(version_file) as f:
+        versions = json.load(f)
     local_version = versions.get(args.repo)
-    if setuptools.version.pkg_resources.parse_version(local_version) == setuptools.version.pkg_resources.parse_version(repo_version):
-      print(local_version if args.display else "NO_UPDATE")
+    if setuptools.version.pkg_resources.parse_version(
+        local_version
+    ) == setuptools.version.pkg_resources.parse_version(repo_version):
+        print(local_version if args.display else "NO_UPDATE")
     else:
-      versions[args.repo] = repo_version
-      with open(version_file, 'w') as json_file:
-        json.dump(versions, json_file, indent=2)
-      print(repo_version)
+        versions[args.repo] = repo_version
+        with open(version_file, "w") as json_file:
+            print(json.dumps(versions, indent=2), file=json_file)
+        print(repo_version)
 
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
