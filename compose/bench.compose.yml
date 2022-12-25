@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     restart: always
     volumes:
       - sites:/home/frappe/frappe-bench/sites
@@ -12,7 +12,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   configurator:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     entrypoint:
       - bash
       - -c
@@ -57,7 +57,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     command:
       - nginx-entrypoint.sh
     restart: always
@@ -78,7 +78,7 @@ services:
       - "8080:8080"
 
   queue-default:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     restart: always
     command:
       - bench
@@ -93,7 +93,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   queue-long:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     restart: always
     command:
       - bench
@@ -108,7 +108,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   queue-short:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     restart: always
     command:
       - bench
@@ -141,7 +141,7 @@ services:
       - redis-socketio-data:/data
 
   scheduler:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     restart: always
     command:
       - bench
@@ -154,7 +154,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   websocket:
-    image: worker:latest
+    image: ghcr.io/castlecraft/frappe_containers/erpnext:v14.11.0
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js

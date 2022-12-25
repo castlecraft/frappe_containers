@@ -18,13 +18,13 @@ git clone https://github.com/resilient-tech/india-compliance -b version-14 --ori
 With `buildah`
 
 ```shell
-buildah build -t worker:latest -f images/production/Containerfile .
+buildah build -t ghcr.io/castlecraft/frappe_containers/erpnext:latest -f images/production/Containerfile .
 ```
 
 Or with `docker`
 
 ```shell
-docker build -t worker:latest -f images/production/Containerfile .
+docker build -t ghcr.io/castlecraft/frappe_containers/erpnext:latest -f images/production/Containerfile .
 ```
 
 ## Start containers

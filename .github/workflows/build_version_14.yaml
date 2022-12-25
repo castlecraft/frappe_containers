@@ -34,11 +34,17 @@ jobs:
         id: get-repo
         run: echo "::set-output name=REPOSITORY::${GITHUB_REPOSITORY#*/}"
 
+      # Keep the following section in latest stable release to update the compose files.
+      - name: Update Compose Files
+        id: update-compose-files
+        run: python scripts/update_compose.py --repo erpnext --version 14
+
+      # Commit and push additional compose yaml files for latest stable release.
       - name: Push
         run: |
           git config --global user.name github-actions
           git config --global user.email github-actions@github.com
-          git add versions
+          git add versions compose.yml compose/bench.compose.yml
           if [ -z "$(git status --porcelain)" ]; then
             echo "versions did not change, exiting."
             exit 0

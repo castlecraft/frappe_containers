@@ -63,7 +63,7 @@ jobs:
             FRAPPE_BRANCH=version-12
             ERPNEXT_BRANCH=version-12
             PYTHON_VERSION=3.7.16
-            NODE_VERSION=14.19.3
+            NODE_VERSION=12.22.12
 
       - name: Push to ghcr.io
         if: ${{ github.event_name != 'pull_request' && steps.verify-version.outputs.VERSION != 'NO_UPDATE' }}
