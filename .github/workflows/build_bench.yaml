@@ -1,12 +1,12 @@
-name: Nightly
+name: Bench
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - images/production/**
-      - .github/workflows/build_nightly.yaml
+      - images/development/**
+      - .github/workflows/build_bench.yaml
 
   schedule:
     # Every day at 12:00 pm
@@ -34,14 +34,11 @@ jobs:
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ghcr.io/${{ github.repository_owner }}/${{ steps.get-repo.outputs.REPOSITORY }}/erpnext
+          image: ghcr.io/${{ github.repository_owner }}/${{ steps.get-repo.outputs.REPOSITORY }}/bench
           tags: latest
           archs: amd64
           containerfiles: |
-            ./images/production/Containerfile
-          build-args: |
-            FRAPPE_BRANCH=develop
-            ERPNEXT_BRANCH=develop
+            ./images/development/Containerfile
 
       - name: Push to ghcr.io
         if: ${{ github.event_name != 'pull_request' }}
