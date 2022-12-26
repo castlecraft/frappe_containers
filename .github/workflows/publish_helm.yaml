@@ -16,27 +16,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Checkout gh-pages
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: public
+          clean: false
 
       - name: Install Helm
         uses: azure/setup-helm@v3
-        with:
-          version: v3.10.0
 
-      - name: Add Helm Repo
+      - name: Build Helm Chart
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm package charts/erpnext --destination public
+          helm repo index public --url https://frappe-containers.castlecraft.in
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.4.1
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v3
         with:
-          charts_dir: charts
-          config: cr.yaml
-          charts_repo_url: https://frappe-containers.castlecraft.in
+          target_branch: gh-pages
+          build_dir: public
+          keep_history: true
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
