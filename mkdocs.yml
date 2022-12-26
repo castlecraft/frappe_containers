@@ -1,0 +1,17 @@
+site_name: Frappe Containers
+site_author: Castlecraft Ecommerce Pvt. Ltd
+site_url: https://frappe-containers.castlecraft.in
+theme:
+  name: material
+  palette:
+    scheme: default
+repo_name: castlecraft/frappe_containers
+repo_url: https://github.com/castlecraft/frappe_containers
+edit_uri: edit/main/docs/
+nav:
+  - Introduction: index.md
+  - Single Host: single-server.md
+  - Docker Swarm: docker-swarm.md
+  - Kubernetes: helm-chart.md
+markdown_extensions:
+  - tables

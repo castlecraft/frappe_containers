@@ -14,6 +14,8 @@ SemVerType = Literal["major", "minor", "micro"]
 IMAGE_NAME = "ghcr.io/castlecraft/frappe_containers/erpnext"
 NO_UPDATE = "NO_UPDATE"
 ERPNEXT = "erpnext"
+CHART_FILE = "charts/erpnext/Chart.yaml"
+VALUES_FILE = "charts/erpnext/values.yaml"
 
 
 def get_latest_tag(version: MajorVersion) -> str:
@@ -54,7 +56,7 @@ def update_compose(file_name: str, version: str):
 
 
 def update_values(version: str):
-    with open("chart/values.yaml", "r+") as f:
+    with open(VALUES_FILE, "r+") as f:
         content = f.read()
         content = re.sub(rf"tag:.*", f"tag: {version}", content)
         f.seek(0)
@@ -63,7 +65,7 @@ def update_values(version: str):
 
 
 def update_chart(chart_version: str, app_version: str):
-    with open("chart/Chart.yaml", "r+") as f:
+    with open(CHART_FILE, "r+") as f:
         content = f.read()
         content = re.sub(rf"version: .*", f"version: {chart_version}", content, count=1)
         content = re.sub(
@@ -76,7 +78,7 @@ def update_chart(chart_version: str, app_version: str):
 
 def get_chart_versions():
     chart_versions = subprocess.check_output(
-        "yq '.version, .appVersion' < chart/Chart.yaml",
+        f"yq '.version, .appVersion' < {CHART_FILE}",
         shell=True,
     )
     version, app_version = chart_versions.decode("utf-8").strip().split("\n")
@@ -88,7 +90,7 @@ def get_chart_versions():
 
 def get_values_versions():
     proc = subprocess.check_output(
-        'yq ".image.tag" < chart/values.yaml',
+        f'yq ".image.tag" < {VALUES_FILE}',
         shell=True,
     )
     version = setuptools.version.pkg_resources.parse_version(proc.decode("utf-8"))
