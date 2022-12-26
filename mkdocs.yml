@@ -12,6 +12,6 @@ nav:
   - Introduction: index.md
   - Single Host: single-server.md
   - Docker Swarm: docker-swarm.md
-  - Kubernetes: helm-chart.md
+  - Kubernetes: kubernetes.md
 markdown_extensions:
   - tables

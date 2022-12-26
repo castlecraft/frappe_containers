@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - docs/**
+      - charts/**
 
 jobs:
   build:
@@ -31,6 +32,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CONFIG_FILE: mkdocs.yml
+          REQUIREMENTS: docs/requirements.txt
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.4.1
@@ -39,4 +41,3 @@ jobs:
           charts_repo_url: https://frappe-containers.castlecraft.in
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
