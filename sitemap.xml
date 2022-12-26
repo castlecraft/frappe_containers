@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://frappe-containers.castlecraft.in/</loc>
+         <lastmod>2022-12-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://frappe-containers.castlecraft.in/docker-swarm/</loc>
+         <lastmod>2022-12-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://frappe-containers.castlecraft.in/kubernetes/</loc>
+         <lastmod>2022-12-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://frappe-containers.castlecraft.in/single-server/</loc>
+         <lastmod>2022-12-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+</urlset>
