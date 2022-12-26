@@ -1,2 +1,4 @@
 owner: castlecraft
 git-base-url: https://api.github.com/
+git-repo: frappe_containers
+git-upload-url: https://uploads.github.com/

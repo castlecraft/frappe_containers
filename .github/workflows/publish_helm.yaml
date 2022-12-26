@@ -9,14 +9,14 @@ on:
       - .github/workflows/publish_helm.yaml
 
 jobs:
-  build:
+  release:
+    permissions:
+      contents: write
     name: Publish Helm Chart
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Configure Git
         run: |
