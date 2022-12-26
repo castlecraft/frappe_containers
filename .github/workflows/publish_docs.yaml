@@ -5,6 +5,8 @@ on:
       - main
     paths:
       - docs/**
+      - mkdocs.yml
+      - .github/workflows/publish_docs.yaml
 
 jobs:
   build:
