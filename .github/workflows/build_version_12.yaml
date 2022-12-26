@@ -7,6 +7,8 @@ on:
     paths:
       - images/production/**
       - .github/workflows/build_version_12.yaml
+      - .github/workflows/reuse_build_push.yaml
+      - resources/**
 
   schedule:
     # Every day at 12:00 pm
@@ -15,63 +17,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install qemu and podman dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static podman
-
-      - name: Verify Version
-        id: verify-version
-        run: echo "::set-output name=VERSION::$(python scripts/verify_version.py --repo erpnext --version 12)"
-
-      - name: Get Repo
-        id: get-repo
-        run: echo "::set-output name=REPOSITORY::${GITHUB_REPOSITORY#*/}"
-
-      - name: Push
-        run: |
-          git config --global user.name github-actions
-          git config --global user.email github-actions@github.com
-          git add versions
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "versions did not change, exiting."
-            exit 0
-          else
-            echo "version changed, pushing changes..."
-            git commit -m "chore: update versions from upstream"
-            git pull --rebase
-            git push origin main
-          fi
-
-      - name: Build image
-        if: ${{ github.event_name != 'pull_request' && steps.verify-version.outputs.VERSION != 'NO_UPDATE' }}
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ghcr.io/${{ github.repository_owner }}/${{ steps.get-repo.outputs.REPOSITORY }}/erpnext
-          tags: ${{ steps.verify-version.outputs.VERSION }}
-          archs: amd64
-          containerfiles: |
-            ./images/production/Containerfile
-          build-args: |
-            FRAPPE_BRANCH=version-12
-            ERPNEXT_BRANCH=version-12
-            PYTHON_VERSION=3.7.16
-            NODE_VERSION=12.22.12
-
-      - name: Push to ghcr.io
-        if: ${{ github.event_name != 'pull_request' && steps.verify-version.outputs.VERSION != 'NO_UPDATE' }}
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.verify-version.outputs.VERSION }}
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  v14:
+    uses: ./.github/workflows/reuse_build_push.yml
+    with:
+      version: "12"
+      build-args: |
+        FRAPPE_BRANCH=version-12
+        ERPNEXT_BRANCH=version-12
+        PYTHON_VERSION=3.7.16
+        NODE_VERSION=12.22.12
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

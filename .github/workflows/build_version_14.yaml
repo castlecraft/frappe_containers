@@ -7,6 +7,8 @@ on:
     paths:
       - images/production/**
       - .github/workflows/build_version_14.yaml
+      - .github/workflows/reuse_build_push.yaml
+      - resources/**
 
   schedule:
     # Every day at 12:00 pm
@@ -15,69 +17,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install qemu and podman dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static podman
-
-      - name: Verify Version
-        id: verify-version
-        run: echo "::set-output name=VERSION::$(python scripts/verify_version.py --repo erpnext --version 14)"
-
-      - name: Get Repo
-        id: get-repo
-        run: echo "::set-output name=REPOSITORY::${GITHUB_REPOSITORY#*/}"
-
-      # Keep the following section in latest stable release to update the compose files.
-      - name: Update Compose Files
-        id: update-compose-files
-        run: python scripts/update_compose.py --repo erpnext --version 14
-
-      # Commit and push additional compose yaml files for latest stable release.
-      - name: Push
-        run: |
-          git config --global user.name github-actions
-          git config --global user.email github-actions@github.com
-          git add versions compose.yml compose/bench.compose.yml
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "versions did not change, exiting."
-            exit 0
-          else
-            echo "version changed, pushing changes..."
-            git commit -m "chore: update versions from upstream"
-            git pull --rebase
-            git push origin main
-          fi
-
-      - name: Build image
-        if: ${{ github.event_name != 'pull_request' && steps.verify-version.outputs.VERSION != 'NO_UPDATE' }}
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ghcr.io/${{ github.repository_owner }}/${{ steps.get-repo.outputs.REPOSITORY }}/erpnext
-          tags: ${{ steps.verify-version.outputs.VERSION }}
-          archs: amd64
-          containerfiles: |
-            ./images/production/Containerfile
-          build-args: |
-            FRAPPE_BRANCH=version-14
-            ERPNEXT_BRANCH=version-14
-            PYTHON_VERSION=3.10.5
-            NODE_VERSION=16.18.0
-
-      - name: Push to ghcr.io
-        if: ${{ github.event_name != 'pull_request' && steps.verify-version.outputs.VERSION != 'NO_UPDATE' }}
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.verify-version.outputs.VERSION }}
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  v14:
+    uses: ./.github/workflows/reuse_build_push.yml
+    with:
+      version: "14"
+      build-args: |
+        FRAPPE_BRANCH=version-14
+        ERPNEXT_BRANCH=version-14
+        PYTHON_VERSION=3.10.5
+        NODE_VERSION=16.18.0
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

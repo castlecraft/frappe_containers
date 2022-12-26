@@ -28,7 +28,7 @@ jobs:
 
       - name: Get Repo
         id: get-repo
-        run: echo "::set-output name=REPOSITORY::${GITHUB_REPOSITORY#*/}"
+        run: echo "REPOSITORY=${GITHUB_REPOSITORY#*/}" >> $GITHUB_OUTPUT
 
       - name: Build image
         id: build-image

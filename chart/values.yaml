@@ -1,0 +1,426 @@
+# Default values for erpnext.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Configure external database host
+# dbHost: ""
+# dbPort: 3306
+# dbRootUser: ""
+# dbRootPassword: ""
+# dbRds: false
+
+image:
+  repository: ghcr.io/castlecraft/frappe_containers/erpnext
+  tag: v14.11.0
+  pullPolicy: IfNotPresent
+
+nginx:
+  replicaCount: 1
+  # config: |
+  #   # custom conf /etc/nginx/conf.d/default.conf
+  environment:
+    upstreamRealIPAddress: "127.0.0.1"
+    upstreamRealIPRecursive: "off"
+    upstreamRealIPHeader: "X-Forwarded-For"
+    frappeSiteNameHeader: "$host"
+  livenessProbe:
+    tcpSocket:
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readinessProbe:
+    tcpSocket:
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  envVars: []
+  initContainers: []
+  sidecars: []
+
+worker:
+  gunicorn:
+    replicaCount: 1
+    livenessProbe:
+      tcpSocket:
+        port: 8000
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    readinessProbe:
+      tcpSocket:
+        port: 8000
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    service:
+      type: ClusterIP
+      port: 8000
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    args:
+      # https://pythonspeed.com/articles/gunicorn-in-docker/
+    - /home/frappe/frappe-bench/env/bin/gunicorn
+    - --bind=0.0.0.0:8000
+    - --log-file=-
+    - --preload
+    - --threads=4
+    - --timeout=120
+    - --worker-class=gthread
+    - --worker-tmp-dir=/dev/shm
+    - --workers=2
+    - frappe.app:application
+    envVars: []
+    initContainers: []
+    sidecars: []
+
+  default:
+    replicaCount: 1
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    livenessProbe:
+      override: false
+      probe: {}
+    readinessProbe:
+      override: false
+      probe: {}
+    envVars: []
+    initContainers: []
+    sidecars: []
+
+  short:
+    replicaCount: 1
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    livenessProbe:
+      override: false
+      probe: {}
+    readinessProbe:
+      override: false
+      probe: {}
+    envVars: []
+    initContainers: []
+    sidecars: []
+
+  long:
+    replicaCount: 1
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    livenessProbe:
+      override: false
+      probe: {}
+    readinessProbe:
+      override: false
+      probe: {}
+    envVars: []
+    initContainers: []
+    sidecars: []
+
+  scheduler:
+    replicaCount: 1
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    livenessProbe:
+      override: false
+      probe: {}
+    readinessProbe:
+      override: false
+      probe: {}
+    envVars: []
+    initContainers: []
+    sidecars: []
+
+  healthProbe: |
+    exec:
+      command:
+        - bash
+        - -c
+        - echo "Ping backing services";
+        {{- if .Values.mariadb.enabled }}
+        {{- if eq .Values.mariadb.architecture "replication" }}
+        - wait-for-it {{ .Release.Name }}-mariadb-primary:{{ .Values.mariadb.primary.service.ports.mysql }} -t 1;
+        {{- else }}
+        - wait-for-it {{ .Release.Name }}-mariadb:{{ .Values.mariadb.primary.service.ports.mysql }} -t 1;
+        {{- end }}
+        {{- else if .Values.dbHost }}
+        - wait-for-it {{ .Values.dbHost }}:{{ .Values.mariadb.primary.service.ports.mysql }} -t 1;
+        {{- end }}
+        {{- if index .Values "redis-cache" "host" }}
+        - wait-for-it {{ .Release.Name }}-redis-cache-master:{{ index .Values "redis-cache" "master" "containerPorts" "redis" }} -t 1;
+        {{- else if index .Values "redis-cache" "host" }}
+        - wait-for-it {{ index .Values "redis-cache" "host" }} -t 1;
+        {{- end }}
+        {{- if index .Values "redis-queue" "host" }}
+        - wait-for-it {{ .Release.Name }}-redis-queue-master:{{ index .Values "redis-queue" "master" "containerPorts" "redis" }} -t 1;
+        {{- else if index .Values "redis-queue" "host" }}
+        - wait-for-it {{ index .Values "redis-queue" "host" }} -t 1;
+        {{- end }}
+        {{- if index .Values "redis-socketio" "host" }}
+        - wait-for-it {{ .Release.Name }}-redis-socketio-master:{{ index .Values "redis-socketio" "master" "containerPorts" "redis" }} -t 1;
+        {{- else if index .Values "redis-socketio" "host" }}
+        - wait-for-it {{ index .Values "redis-socketio" "host" }} -t 1;
+        {{- end }}
+        {{- if .Values.postgresql.host }}
+        - wait-for-it {{ .Values.postgresql.host }}:{{ .Values.postgresql.primary.service.ports.postgresql }} -t 1;
+        {{- else if .Values.postgresql.enabled }}
+        - wait-for-it {{ .Release.Name }}-postgresql:{{ .Values.postgresql.primary.service.ports.postgresql }} -t 1;
+        {{- end }}
+    initialDelaySeconds: 15
+    periodSeconds: 5
+
+socketio:
+  replicaCount: 1
+  livenessProbe:
+    tcpSocket:
+      port: 9000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readinessProbe:
+    tcpSocket:
+      port: 9000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  service:
+    type: ClusterIP
+    port: 9000
+  envVars: []
+  initContainers: []
+  sidecars: []
+
+persistence:
+  worker:
+    enabled: true
+    # existingClaim: ""
+    size: 8Gi
+    # storageClass: "nfs"
+  logs:
+    # Container based log search and analytics stack recommended
+    enabled: false
+    # existingClaim: ""
+    size: 8Gi
+    # storageClass: "nfs"
+
+# Ingress
+ingress:
+  # ingressName: ""
+  # className: ""
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+  - host: erp.cluster.local
+    paths:
+    - path: /
+      pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: auth-server-tls
+  #    hosts:
+  #      - auth-server.local
+
+jobs:
+  volumePermissions:
+    enabled: false
+    backoffLimit: 0
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  configure:
+    enabled: true
+    fixVolume: true
+    backoffLimit: 0
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  createSite:
+    enabled: false
+    forceCreate: false
+    siteName: "erp.cluster.local"
+    adminPassword: "changeit"
+    installApps:
+    - "erpnext"
+    dbType: "mariadb"
+    backoffLimit: 0
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  dropSite:
+    enabled: false
+    forced: false
+    siteName: "erp.cluster.local"
+    backoffLimit: 0
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  backup:
+    enabled: false
+    siteName: "erp.cluster.local"
+    withFiles: true
+    push:
+      enabled: false
+      # bucket: "erpnext"
+      # region: "us-east-1"
+      # accessKey: "ACCESSKEY"
+      # secretKey: "SECRETKEY"
+      # endpoint: http://store.storage.svc.cluster.local
+    backoffLimit: 0
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  migrate:
+    enabled: false
+    siteName: "erp.cluster.local"
+    backoffLimit: 0
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+
+podSecurityContext:
+  supplementalGroups: [1000]
+
+securityContext:
+  capabilities:
+    add:
+    - CAP_CHOWN
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+redis-cache:
+  # https://github.com/bitnami/charts/tree/master/bitnami/redis
+  enabled: true
+  # host: ""
+  architecture: standalone
+  auth:
+    enabled: false
+    sentinal: false
+  master:
+    containerPorts:
+      redis: 6379
+    persistence:
+      enabled: false
+
+redis-queue:
+  # https://github.com/bitnami/charts/tree/master/bitnami/redis
+  enabled: true
+  # host: ""
+  architecture: standalone
+  auth:
+    enabled: false
+    sentinal: false
+  master:
+    containerPorts:
+      redis: 6379
+    persistence:
+      enabled: false
+
+redis-socketio:
+  # https://github.com/bitnami/charts/tree/master/bitnami/redis
+  enabled: true
+  # host: ""
+  architecture: standalone
+  auth:
+    enabled: false
+    sentinal: false
+  master:
+    containerPorts:
+      redis: 6379
+    persistence:
+      enabled: false
+
+mariadb:
+  # https://github.com/bitnami/charts/tree/master/bitnami/mariadb
+  enabled: true
+  auth:
+    rootPassword: "changeit"
+    username: "erpnext"
+    password: "changeit"
+    replicationPassword: "changeit"
+  primary:
+    service:
+      ports:
+        mysql: 3306
+    configuration: |-
+      [mysqld]
+      skip-name-resolve
+      explicit_defaults_for_timestamp
+      basedir=/opt/bitnami/mariadb
+      plugin_dir=/opt/bitnami/mariadb/plugin
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      tmpdir=/opt/bitnami/mariadb/tmp
+      max_allowed_packet=16M
+      bind-address=*
+      pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+      log-error=/opt/bitnami/mariadb/logs/mysqld.log
+      slow_query_log=0
+      slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
+      long_query_time=10.0
+
+      # Frappe Specific Changes
+      character-set-client-handshake=FALSE
+      character-set-server=utf8mb4
+      collation-server=utf8mb4_unicode_ci
+
+      [client]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      plugin_dir=/opt/bitnami/mariadb/plugin
+
+      # Frappe Specific Changes
+      default-character-set=utf8mb4
+
+      [manager]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+
+postgresql:
+  # https://github.com/bitnami/charts/tree/master/bitnami/postgresql
+  enabled: false
+  # host: ""
+  auth:
+    username: "postgres"
+    postgresPassword: "changeit"
+  primary:
+    service:
+      ports:
+        postgresql: 5432

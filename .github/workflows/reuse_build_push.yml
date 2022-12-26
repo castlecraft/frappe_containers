@@ -1,0 +1,86 @@
+name: Build and Push
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+        description: "Major version, git tags should match 'v{version}.*'; or 'develop'"
+      build_args:
+        required: true
+        type: string
+        description: "build args for buildah"
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install qemu and podman dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static podman
+
+      - name: Get Variables
+        id: get-variables
+        run: |
+          echo "REPOSITORY=${GITHUB_REPOSITORY#*/}" >> $GITHUB_OUTPUT
+          echo "VERSION=$(python scripts/manage.py --version ${{ inputs.version }} verify-git-version --display)" >> $GITHUB_OUTPUT
+          echo "UPDATE_STATUS=$(python scripts/manage.py --version ${{ inputs.version }} verify-git-version)" >> $GITHUB_OUTPUT
+
+      - name: Update Version JSON
+        if: ${{ github.event_name != 'pull_request' && steps.get-variables.outputs.UPDATE_STATUS != 'NO_UPDATE' }}
+        id: update-version-json
+        run: python scripts/manage.py --version ${{ inputs.version }} verify-git-version --update-version-json)
+
+      # Keep the following version to latest stable release
+      # - name: Update Files
+      #   if: ${{ inputs.version == '14' }}
+      #   id: update-files
+      #   run: |
+      #     python scripts/manage.py --version ${{ inputs.version }} update-compose
+      #     python scripts/manage.py --version ${{ inputs.version }} update-helm --increment micro
+
+      - name: Push
+        if: ${{ github.event_name != 'pull_request' && steps.get-variables.outputs.UPDATE_STATUS != 'NO_UPDATE' }}
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
+          git add versions chart compose compose.yml
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "versions did not change, exiting."
+            exit 0
+          else
+            echo "version changed, pushing changes..."
+            git commit -m "chore: update versions from upstream"
+            git pull --rebase
+            git push origin main
+          fi
+
+      - name: Build image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/${{ steps.get-variables.outputs.REPOSITORY }}/erpnext
+          tags: ${{ steps.get-variables.outputs.VERSION }}
+          archs: amd64
+          containerfiles: |
+            ./images/production/Containerfile
+          build-args: ${{ inputs.build_args }}
+
+      - name: Push to ghcr.io
+        if: ${{ github.event_name != 'pull_request' && steps.get-variables.outputs.UPDATE_STATUS != 'NO_UPDATE' }}
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.get-variables.outputs.VERSION }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
