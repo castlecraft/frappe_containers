@@ -12,7 +12,7 @@ on:
         type: string
         description: "build args for buildah"
     secrets:
-      GITHUB_TOKEN:
+      REGISTRY_TOKEN:
         required: true
 
 jobs:
@@ -83,4 +83,4 @@ jobs:
           tags: ${{ steps.get-variables.outputs.VERSION }}
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.REGISTRY_TOKEN }}

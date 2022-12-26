@@ -27,4 +27,4 @@ jobs:
         PYTHON_VERSION=3.10.5
         NODE_VERSION=16.18.0
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
