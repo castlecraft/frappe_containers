@@ -34,6 +34,10 @@ jobs:
           CONFIG_FILE: mkdocs.yml
           REQUIREMENTS: docs/requirements.txt
 
+      - name: Add Helm Repo
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.4.1
         with:
