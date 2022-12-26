@@ -9,7 +9,6 @@ from typing import Literal
 
 import setuptools
 
-
 MajorVersion = Literal["12", "13", "14", "develop"]
 SemVerType = Literal["major", "minor", "micro"]
 IMAGE_NAME = "ghcr.io/castlecraft/frappe_containers/erpnext"
