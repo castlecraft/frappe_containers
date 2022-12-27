@@ -5,7 +5,6 @@ on:
       - main
     paths:
       - charts/**
-      - cr.yaml
       - .github/workflows/publish_helm.yaml
 
 jobs:

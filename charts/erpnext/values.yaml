@@ -67,6 +67,7 @@ worker:
     args:
       # https://pythonspeed.com/articles/gunicorn-in-docker/
     - /home/frappe/frappe-bench/env/bin/gunicorn
+    - --chdir=/home/frappe/frappe-bench/sites
     - --bind=0.0.0.0:8000
     - --log-file=-
     - --preload
