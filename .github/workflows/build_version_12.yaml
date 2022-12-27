@@ -17,11 +17,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  v14:
+  v12:
     uses: ./.github/workflows/reuse_build_push.yml
     with:
       version: "12"
-      build-args: |
+      build_args: |
         FRAPPE_BRANCH=version-12
         ERPNEXT_BRANCH=version-12
         PYTHON_VERSION=3.7.16

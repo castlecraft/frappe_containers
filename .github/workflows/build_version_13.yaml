@@ -21,7 +21,7 @@ jobs:
     uses: ./.github/workflows/reuse_build_push.yml
     with:
       version: "13"
-      build-args: |
+      build_args: |
         FRAPPE_BRANCH=version-13
         ERPNEXT_BRANCH=version-13
         PYTHON_VERSION=3.9.9
