@@ -108,7 +108,7 @@ FROM base as backend
 # Fixes for non-root nginx and logs to stdout
 RUN sed -i '/user www-data/d' /etc/nginx/nginx.conf && \
   ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log && \
-  touch /var/run/nginx.pid && \
+  mkdir -p /var/run && touch /var/run/nginx.pid && \
   chown -R frappe:frappe /etc/nginx/conf.d && \
   chown -R frappe:frappe /etc/nginx/nginx.conf && \
   chown -R frappe:frappe /var/log/nginx && \
