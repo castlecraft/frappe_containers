@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  v14:
+  v12:
     uses: ./.github/workflows/reuse_build_push.yml
     with:
       version: "12"
