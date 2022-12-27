@@ -108,7 +108,7 @@ FROM base as backend
 # Fixes for non-root nginx and logs to stdout
 RUN sed -i '/user www-data/d' /etc/nginx/nginx.conf && \
   ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log && \
-  mkdir -p /var/run && touch /var/run/nginx.pid && \
+  touch /run/nginx.pid && \
   chown -R frappe:frappe /etc/nginx/conf.d && \
   chown -R frappe:frappe /etc/nginx/nginx.conf && \
   chown -R frappe:frappe /var/log/nginx && \
@@ -121,16 +121,9 @@ USER frappe
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
 WORKDIR /home/frappe/frappe-bench
 
-VOLUME [ \
-  "/home/frappe/frappe-bench/sites", \
-  "/home/frappe/frappe-bench/sites/assets", \
-  "/home/frappe/frappe-bench/logs", \
-  "/home/frappe/frappe-bench/apps", \
-  "/home/frappe/frappe-bench/env" \
-]
-
 CMD [ \
   "/home/frappe/frappe-bench/env/bin/gunicorn", \
+  "--chdir=/home/frappe/frappe-bench/sites", \
   "--bind=0.0.0.0:8000", \
   "--threads=4", \
   "--workers=2", \
