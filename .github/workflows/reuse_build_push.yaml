@@ -64,6 +64,7 @@ jobs:
           fi
 
       - name: Build image
+        if: ${{ github.event_name == 'pull_request' || steps.get-variables.outputs.UPDATE_STATUS != 'NO_UPDATE' }}
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
