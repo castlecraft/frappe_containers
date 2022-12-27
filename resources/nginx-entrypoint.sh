@@ -33,6 +33,11 @@ if [[ -z "$PROXY_READ_TIMEOUT" ]]; then
 	export PROXY_READ_TIMEOUT=120
 fi
 
+if [[ -z "$CLIENT_MAX_BODY_SIZE" ]]; then
+	echo "CLIENT_MAX_BODY_SIZE defaulting to 50m"
+	export CLIENT_MAX_BODY_SIZE=50m
+fi
+
 # shellcheck disable=SC2016
 envsubst '${BACKEND}
   ${SOCKETIO}
@@ -40,7 +45,8 @@ envsubst '${BACKEND}
   ${UPSTREAM_REAL_IP_HEADER}
   ${UPSTREAM_REAL_IP_RECURSIVE}
   ${FRAPPE_SITE_NAME_HEADER}
-  ${PROXY_READ_TIMEOUT}' \
+  ${PROXY_READ_TIMEOUT}
+	${CLIENT_MAX_BODY_SIZE}' \
 	</templates/nginx/frappe.conf.template >/etc/nginx/conf.d/frappe.conf
 
 nginx -g 'daemon off;'

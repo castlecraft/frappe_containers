@@ -43,39 +43,6 @@ docker compose up -d
 docker-compose up -d
 ```
 
-### Alternative mutable bench setup
-
-WARNING: This goes against container best practices.
-
-Use `compose/bench.compose.yml` to start containers with shared volumes for `apps`, `assets`, `env`, `logs` and `sites`.
-
-```shell
-docker compose -p bench -f compose/bench.compose.yml up -d
-# or
-podman-compose --project-name bench -f compose/bench.compose.yml up -d
-```
-
-Enter the backend container:
-
-```shell
-docker compose -p bench exec backend bash
-# or
-podman-compose --project-name bench exec backend bash
-```
-
-Now you can execute standard bench commands inside container. Example:
-
-```shell
-bench new-site site1.localhost --no-mariadb-socket --db-root-password=admin --admin-password=admin --install-app erpnext
-bench update --no-backup --reset
-bench build --production --hard-link
-```
-
-Notes:
-
-- As the processes are controlled by container engine, `supervisor` is not installed in containers. Instead restart the containers to have the same effect.
-- Volumes preserve the changes done to apps, assets, env and sites during bench commands like `bench update`, `bench setup env` or `build build --hard-link`.
-
 ## Environment Variables
 
 No script except `nginx-entrypoint.sh` uses environment variables.
@@ -89,5 +56,6 @@ Variables used are as follows:
 - `UPSTREAM_REAL_IP_RECURSIVE`: Set Nginx config for [ngx_http_realip_module#real_ip_recursive](http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_recursive) Set defaults to `off`
 - `FRAPPE_SITE_NAME_HEADER`: Set proxy header `X-Frappe-Site-Name` and serve site named in the header, defaults to `$host`, i.e. find site name from host header.
 - `PROXY_READ_TIMEOUT`: Upstream gunicorn service timeout, defaults to `120`
+- `CLIENT_MAX_BODY_SIZE`: Max body size for uploads, defaults to `50m`
 
 To bypass `nginx-entrypoint.sh`, mount desired `/etc/nginx/conf.d/default.conf` and run `nginx -g 'daemon off;'` as container command.

@@ -181,7 +181,6 @@ def update_compose_files(args):
         return print(NO_UPDATE)
     version_file = f"versions/version-{args.version}.json"
     versions = get_versions(version_file=version_file, version=args.version)
-    update_compose("compose/bench.compose.yml", versions.get("repo_version"))
     update_compose("compose.yml", versions.get("repo_version"))
 
 
