@@ -10,6 +10,7 @@ repo_url: https://github.com/castlecraft/frappe_containers
 edit_uri: edit/main/docs/
 nav:
   - Introduction: index.md
+  - Build Custom Image: build-custom-image.md
   - Single Host: single-server.md
   - Docker Swarm: docker-swarm.md
   - Kubernetes: kubernetes.md
