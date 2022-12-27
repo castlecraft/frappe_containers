@@ -10,14 +10,14 @@
         <meta name="author" content="Castlecraft Ecommerce Pvt. Ltd">
       
       
-        <link rel="canonical" href="https://frappe-containers.castlecraft.in/kubernetes/">
+        <link rel="canonical" href="https://frappe-containers.castlecraft.in/build-custom-image/">
       
       <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
-        <title>Kubernetes - Frappe Containers</title>
+        <title>Build Custom Image - Frappe Containers</title>
       
     
     
@@ -65,6 +65,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#clone-frappe_containers-and-switch-directory" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -94,7 +99,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kubernetes
+              Build Custom Image
             
           </span>
         </div>
@@ -217,11 +222,83 @@
 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../build-custom-image/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Build Custom Image
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Build Custom Image
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#clone-frappe_containers-and-switch-directory" class="md-nav__link">
+    Clone frappe_containers and switch directory
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-custom-apps-through-json" class="md-nav__link">
+    Load custom apps through json
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-image" class="md-nav__link">
+    Build Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#push-image-to-use-in-yaml-files" class="md-nav__link">
+    Push image to use in yaml files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-kaniko" class="md-nav__link">
+    Use Kaniko
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-images" class="md-nav__link">
+    Use Images
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -262,19 +339,11 @@
 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../kubernetes/" class="md-nav__link">
         Kubernetes
       </a>
-      
     </li>
   
 
@@ -297,6 +366,56 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#clone-frappe_containers-and-switch-directory" class="md-nav__link">
+    Clone frappe_containers and switch directory
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-custom-apps-through-json" class="md-nav__link">
+    Load custom apps through json
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-image" class="md-nav__link">
+    Build Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#push-image-to-use-in-yaml-files" class="md-nav__link">
+    Push image to use in yaml files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-kaniko" class="md-nav__link">
+    Use Kaniko
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-images" class="md-nav__link">
+    Use Images
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -309,15 +428,81 @@
                 
                   
 
-  <a href="https://github.com/castlecraft/frappe_containers/edit/main/docs/kubernetes.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/castlecraft/frappe_containers/edit/main/docs/build-custom-image.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
-  <h1>Kubernetes</h1>
+  <h1>Build Custom Image</h1>
 
-
+<h3 id="clone-frappe_containers-and-switch-directory">Clone frappe_containers and switch directory</h3>
+<pre><code class="language-shell">git clone https://github.com/castlecraft/frappe_containers
+cd frappe_containers
+</code></pre>
+<h3 id="load-custom-apps-through-json">Load custom apps through json</h3>
+<p><code>apps.json</code> needs to be passed in as build arg environment variable.</p>
+<pre><code class="language-shell">export APPS_JSON='[
+  {
+    &quot;url&quot;: &quot;https://github.com/frappe/payments&quot;,
+    &quot;branch&quot;: &quot;develop&quot;
+  },
+  {
+    &quot;url&quot;: &quot;https://github.com/frappe/erpnext&quot;,
+    &quot;branch&quot;: &quot;version-14&quot;
+  },
+  {
+    &quot;url&quot;: &quot;https://user:password@git.example.com/project/repository.git&quot;,
+    &quot;branch&quot;: &quot;main&quot;
+  }
+]'
+</code></pre>
+<p>Note:</p>
+<ul>
+<li><code>url</code> needs to be http(s) git url with token/auth in case of private repo.</li>
+</ul>
+<h3 id="build-image">Build Image</h3>
+<pre><code class="language-shell">buildah build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=version-14 \
+  --build-arg=PYTHON_VERSION=3.10.5 \
+  --build-arg=NODE_VERSION=16.18.0 \
+  --build-arg=APPS_JSON=$APPS_JSON \
+  --tag=ghcr.io/castlecraft/frappe_containers/custom:1.0.0 \
+  --file=images/custom/Containerfile .
+</code></pre>
+<p>Note:</p>
+<ul>
+<li>Use <code>docker</code> instead of <code>buildah</code> as per your setup.</li>
+<li>Make sure <code>APPS_JSON</code> variable has correct JSON.</li>
+<li>Make sure the <code>--tag</code> is valid image name that will be pushed to registry.</li>
+<li>Change <code>--build-arg</code> as per version of Python, NodeJS, Frappe Framework repo and branch</li>
+</ul>
+<h3 id="push-image-to-use-in-yaml-files">Push image to use in yaml files</h3>
+<p>Login to <code>docker</code> or <code>buildah</code></p>
+<pre><code class="language-shell">buildah login
+</code></pre>
+<p>Push image</p>
+<pre><code class="language-shell">buildah push ghcr.io/castlecraft/frappe_containers/custom:1.0.0
+</code></pre>
+<h3 id="use-kaniko">Use Kaniko</h3>
+<p>Following executor args are required. Example runs locally in docker container.
+You can run it part of CI/CD or part of your cluster.</p>
+<pre><code class="language-shell">podman run --rm -it \
+  -v &quot;$HOME&quot;/.docker/config.json:/kaniko/.docker/config.json \
+  gcr.io/kaniko-project/executor:latest \
+  --dockerfile=images/custom/Containerfile \
+  --context=git://github.com/castlecraft/frappe_containers \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=version-14 \
+  --build-arg=PYTHON_VERSION=3.10.5 \
+  --build-arg=NODE_VERSION=16.18.0 \
+  --build-arg=APPS_JSON=$APPS_JSON \
+  --destination=ghcr.io/castlecraft/frappe_containers/custom:1.0.0
+</code></pre>
+<p>More about <a href="https://github.com/GoogleContainerTools/kaniko">kaniko</a></p>
+<h3 id="use-images">Use Images</h3>
+<p>Make sure image name is correct to be pushed to registry. After the images are pushed, you can pull them to servers to be deployed. If the registry is private, additional auth is needed.</p>
 
 
 
@@ -338,7 +523,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../docker-swarm/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Docker Swarm" rel="prev">
+        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -347,11 +532,26 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              Docker Swarm
+              Introduction
             </div>
           </div>
         </a>
       
+      
+        
+        <a href="../single-server/" class="md-footer__link md-footer__link--next" aria-label="Next: Single Host" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Single Host
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
       
     </nav>
   
