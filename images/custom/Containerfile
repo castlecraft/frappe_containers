@@ -72,6 +72,10 @@ RUN apt-get update \
     libbz2-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# apps.json includes
+ARG APPS_JSON=[]
+RUN mkdir /opt/frappe && echo "${APPS_JSON}" | jq . > /opt/frappe/apps.json
+
 USER frappe
 
 ARG FRAPPE_BRANCH=version-14
@@ -84,14 +88,13 @@ RUN bench init \
   --skip-redis-config-generation \
   --verbose \
   --skip-assets \
-  /home/frappe/frappe-bench
+  --apps_path=/opt/frappe/apps.json \
+  /home/frappe/frappe-bench && \
+  cd /home/frappe/frappe-bench && \
+  bench setup requirements && \
+  find /home/frappe/frappe-bench/apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
 WORKDIR /home/frappe/frappe-bench
-
-# Place all your apps including ERPNext in repos directory
-COPY --chown=frappe:frappe repos apps
-
-RUN bench setup requirements
 
 RUN export BUILD_OPTS="--production --hard-link" && \
   if [ -z "${FRAPPE_BRANCH##*v12*}" ] || [ -z "${FRAPPE_BRANCH##*v13*}" ] \
@@ -117,12 +120,12 @@ RUN sed -i '/user www-data/d' /etc/nginx/nginx.conf && \
   chown -R frappe:frappe /var/run/nginx.pid
 
 USER frappe
-WORKDIR /home/frappe/frappe-bench/sites
+WORKDIR /home/frappe/frappe-bench
 
 VOLUME [ \
   "/home/frappe/frappe-bench/sites", \
-  "/home/frappe/frappe-bench/logs", \
   "/home/frappe/frappe-bench/sites/assets", \
+  "/home/frappe/frappe-bench/logs", \
   "/home/frappe/frappe-bench/apps", \
   "/home/frappe/frappe-bench/env" \
 ]
