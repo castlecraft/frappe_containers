@@ -18,7 +18,7 @@ on:
 
 jobs:
   v14:
-    uses: ./.github/workflows/reuse_build_push.yml
+    uses: ./.github/workflows/reuse_build_push.yaml
     with:
       version: "14"
       build_args: |
