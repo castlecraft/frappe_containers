@@ -52,7 +52,7 @@ jobs:
         run: |
           git config --global user.name github-actions
           git config --global user.email github-actions@github.com
-          git add versions chart compose compose.yml
+          git add versions charts compose compose.yml
           if [ -z "$(git status --porcelain)" ]; then
             echo "versions did not change, exiting."
             exit 0
