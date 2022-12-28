@@ -37,7 +37,7 @@ jobs:
       - name: Update Version JSON
         if: ${{ github.event_name != 'pull_request' && steps.get-variables.outputs.UPDATE_STATUS != 'NO_UPDATE' }}
         id: update-version-json
-        run: python scripts/manage.py --version ${{ inputs.version }} verify-git-version --update-version-json)
+        run: python scripts/manage.py --version ${{ inputs.version }} verify-git-version --update-version-json
 
       # Keep the following version to latest stable release
       # - name: Update Files
