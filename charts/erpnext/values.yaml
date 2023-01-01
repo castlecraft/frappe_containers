@@ -64,19 +64,7 @@ worker:
     nodeSelector: {}
     tolerations: []
     affinity: {}
-    args:
-      # https://pythonspeed.com/articles/gunicorn-in-docker/
-    - /home/frappe/frappe-bench/env/bin/gunicorn
-    - --chdir=/home/frappe/frappe-bench/sites
-    - --bind=0.0.0.0:8000
-    - --log-file=-
-    - --preload
-    - --threads=4
-    - --timeout=120
-    - --worker-class=gthread
-    - --worker-tmp-dir=/dev/shm
-    - --workers=2
-    - frappe.app:application
+    args: []
     envVars: []
     initContainers: []
     sidecars: []

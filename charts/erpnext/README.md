@@ -47,7 +47,7 @@ helm upgrade --install frappe-bench --namespace erpnext frappe/erpnext --set per
 
 ## Introduction
 
-This chart bootstraps a [Frappe/ERPNext](https://github.com/castlecraft/frappe_containers) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps a [Frappe/ERPNext](https://github.com/frappe/frappe_docker) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
 
 ## Parameters
@@ -260,7 +260,7 @@ The following table lists the configurable parameters of the ERPNext chart and t
 | `postgresql.auth.postgresPassword`            | Root password for in-cluster postgresql setup                                                                                                                                                                                                                                                                                                                                                            | `changeit`                               |   |   |
 | `postgresql.primary.service.ports.postgresql` | Container port for postgresql service                                                                                                                                                                                                                                                                                                                                                                    | `5432`                                   |   |   |
 
-The above parameters map to the env variables defined in [frappe_containers](http://github.com/castlecraft/frappe_containers)..
+The above parameters map to the env variables defined in [frappe_docker](http://github.com/frappe/frappe_docker). For more information please refer to the [frappe_docker](http://github.com/frappe/frappe_docker) images documentation.
 
 ## Requirements
 

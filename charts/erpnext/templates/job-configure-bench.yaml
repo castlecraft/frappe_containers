@@ -42,8 +42,8 @@ spec:
         command: ['bash', '-c']
         args:
           - >
-            ls -1 ../apps > apps.txt;
-            [[ -f common_site_config.json ]] || echo "{}" > common_site_config.json;
+            ls -1 apps > sites/apps.txt;
+            [[ -f sites/common_site_config.json ]] || echo "{}" > sites/common_site_config.json;
             bench set-config -gp db_port $DB_PORT;
             bench set-config -g db_host $DB_HOST;
             {{- if .Values.dbRds }}
