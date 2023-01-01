@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION=3.10.5
-FROM python:${PYTHON_VERSION}-slim-bullseye as base
+FROM python:${PYTHON_VERSION}-slim-bullseye AS base
 
 ARG WKHTMLTOPDF_VERSION=0.12.6-1
 ARG NODE_VERSION=16.18.0
@@ -46,7 +46,7 @@ RUN useradd -ms /bin/bash frappe \
     && rm -fr /etc/nginx/sites-enabled/default \
     && pip3 install frappe-bench
 
-FROM base as builder
+FROM base AS builder
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -73,23 +73,29 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # apps.json includes
-ARG APPS_JSON=[]
-RUN mkdir /opt/frappe && echo "${APPS_JSON}" | jq . > /opt/frappe/apps.json
+ARG APPS_JSON_BASE64
+RUN if [ -n "${APPS_JSON_BASE64}" ]; then \
+    mkdir /opt/frappe && echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; \
+  fi
 
 USER frappe
 
 ARG FRAPPE_BRANCH=version-14
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
-RUN bench init \
-  --frappe-branch=${FRAPPE_BRANCH} \
-  --frappe-path=${FRAPPE_PATH} \
-  --no-procfile \
-  --no-backups \
-  --skip-redis-config-generation \
-  --verbose \
-  --skip-assets \
-  --apps_path=/opt/frappe/apps.json \
-  /home/frappe/frappe-bench && \
+RUN export APP_INSTALL_ARGS="" && \
+  if [ -n "${APPS_JSON_BASE64}" ]; then \
+    export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
+  fi && \
+  bench init ${APP_INSTALL_ARGS}\
+    --frappe-branch=${FRAPPE_BRANCH} \
+    --frappe-path=${FRAPPE_PATH} \
+    --no-procfile \
+    --no-backups \
+    --skip-redis-config-generation \
+    --verbose \
+    --skip-assets \
+    --apps_path=/opt/frappe/apps.json \
+    /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   bench setup requirements && \
   find /home/frappe/frappe-bench/apps -mindepth 1 -path "*/.git" | xargs rm -fr
@@ -121,6 +127,12 @@ COPY resources/push_backup.py /usr/local/bin/push-backup
 USER frappe
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
 WORKDIR /home/frappe/frappe-bench
+
+VOLUME [ \
+  "/home/frappe/frappe-bench/sites", \
+  "/home/frappe/frappe-bench/sites/assets", \
+  "/home/frappe/frappe-bench/logs" \
+]
 
 CMD [ \
   "/home/frappe/frappe-bench/env/bin/gunicorn", \
