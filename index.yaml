@@ -3,7 +3,7 @@ entries:
   erpnext:
   - apiVersion: v2
     appVersion: v14.11.0
-    created: "2022-12-26T23:35:56.090377695Z"
+    created: "2023-01-01T12:21:11.869208953Z"
     dependencies:
     - alias: redis-cache
       condition: redis-cache.enabled
@@ -28,12 +28,12 @@ entries:
       name: postgresql
       repository: https://charts.bitnami.com/bitnami
       version: 12.1.6
-    description: Kubernetes Helm Chart for Frappe Framework / ERPNext
-    digest: e53c4ed3eab0c1fe3b899fe6595d41ac295df9ab91f30e6294c6de5056e1a258
+    description: Kubernetes Helm Chart for the latest stable ERPNext branch
+    digest: e047983c2cc73707385ea4afcda26c27f02fa63de42de0beeebfee103f57dfbe
     icon: https://raw.githubusercontent.com/frappe/design/master/logos/logo-2018/erpnext-logo-blue.svg
     name: erpnext
     type: application
     urls:
     - https://frappe-containers.castlecraft.in/erpnext-6.0.0.tgz
     version: 6.0.0
-generated: "2022-12-26T23:35:56.068714785Z"
+generated: "2023-01-01T12:21:11.84683419Z"
